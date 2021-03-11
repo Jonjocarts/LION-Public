@@ -1,0 +1,373 @@
+# GWINC Voyager interferometer parameters
+
+# parameters for quad pendulum suspension updated 3rd May 2006, NAR
+# References:
+# LIGO-T000012-00-D
+# 	* Differentiate between silica and sapphire substrate absorption
+# 	* Change ribbon suspension aspect ratio
+# 	* Change pendulum frequency
+# * References:
+# * 1. Electro-Optic Handbook, Waynant & Ediger (McGraw-Hill: 1993)
+# * 2. LIGO/GEO data/experience
+# * 3. Suspension reference design, LIGO-T000012-00
+# * 4. Quartz Glass for Optics Data and Properties, Heraeus data sheet,
+# *    numbers for suprasil
+# * 5. Y.S. Touloukian (ed), Thermophysical Properties of Matter 
+# *    (IFI/Plenum,1970)
+# * 6. Marvin J. Weber (ed) CRC Handbook of laser science and technology, 
+# *    Vol 4, Pt 2
+# * 7. R.S. Krishnan et al.,Thermal Expansion of Crystals, Pergamon Press
+# * 8. P. Klocek, Handbook of infrared and optical materials, Marcel Decker, 
+# *    1991
+# * 9. Rai Weiss, electronic log from 5/10/2006
+# * 10. Wikipedia online encyclopedia, 2006
+# * 11. D.K. Davies, The Generation and Dissipation of Static Charge on
+# * dielectrics in a Vacuum, page 29
+# * 12. Gretarsson & Harry, Gretarsson thesis
+# * 13. Fejer
+# * 14. Braginsky
+
+Infrastructure:
+  Length: 3995 # m
+  Temp: 295 # K; Temperature of the Vacuum
+  ResidualGas:
+    pressure: 4.0e-7         # Pa
+    mass: 3.35e-27           # kg,   Mass of H_2 (ref. 10)
+    polarizability: 0.81e-30 # m^3  (H_2, DOI: 10.1116/1.1479360)
+
+TCS:
+  ## Parameter describing thermal lensing
+  # The presumably dominant effect of a thermal lens in the ITMs is an increased
+  # mode mismatch into the SRC, and thus an increased effective loss of the SRC.
+  # This increase is estimated by calculating the round-trip loss S in the SRC as
+  # 1-S = |<Psi|exp(i*phi)|Psi>|^2, where
+  # |Psi> is the beam hitting the ITM and
+  # phi = P_coat*phi_coat + P_subs*phi_subs
+  # with phi_coat & phi__subs the specific lensing profiles
+  # and P_coat & P_subst the power absorbed in coating and substrate
+  #
+  # This expression can be expanded to 2nd order and is given by
+  # S= s_cc P_coat^2 + 2*s_cs*P_coat*P_subst + s_ss*P_subst^2
+  # s_cc, s_cs and s_ss where calculated analytically by Phil Wilems (4/2007)
+  s_cc: 7.024 # Watt^-2
+  s_cs: 7.321 # Watt^-2
+  s_ss: 7.631 # Watt^-2
+  # The hardest part to model is how efficient the TCS system is in
+  # compensating this loss. Thus as a simple Ansatz we define the
+  # TCS efficiency TCSeff as the reduction in effective power that produces
+  # a phase distortion. E.g. TCSeff=0.99 means that the compensated distortion
+  # of 1 Watt absorbed is equivalent to the uncompensated distortion of 10mWatt.
+  # The above formula thus becomes:
+  # S= s_cc P_coat^2 + 2*s_cs*P_coat*P_subst + s_ss*P_subst^2 * (1-TCSeff)^2
+  #
+  # To avoid iterative calculation we define TCS.SCRloss = S as an input
+  # and calculate TCSeff as an output.
+  # TCS.SRCloss is incorporated as an additional loss in the SRC
+  SRCloss: 0.00
+
+Seismic:
+  ## Seismic and Gravity Gradient Parameters
+  Site: 'LHO'                      # LHO or LLO (only used for Newtonian noise)
+  KneeFrequency: 10                # Hz; freq where 'flat' noise rolls off
+  LowFrequencyLevel: 1e-9          # m/rtHz; seismic noise level below f_knee
+  Gamma: 0.8                       # abruptness of change at f_knee
+  Rho: 1.8e3                       # kg/m^3; density of the ground nearby
+  Beta: 0.8                        # quiet times beta = 0.35-0.60; noisy times beta = 0.15-1.4
+  Omicron: 10                      # Feedforward cancellation factor
+  TestMassHeight: 1.5              # m
+  RayleighWaveSpeed: 250           # m/s
+  PlatformMotion: '6D'
+  #darmSeiSusFile: 'CryogenicLIGO/Sensitivity/GWINC/seismic.mat'
+
+Suspension:
+  Type: 'Quad'
+  VHCoupling:
+    theta: 1e-3  # vertical-horizontal x-coupling
+  FiberType: 'Ribbon'
+  # For Ribbon suspension
+  # 1:10 aspect ratio & stress limited to 1GPa
+  # -- Feb 25, 2018 (KA)
+  Ribbon:
+    Thickness: 500e-6  # m
+    Width: 10000e-6    # m
+  # Note stage numbering: mirror is at beginning of stack, not end
+  #
+  # mass/length from Koji's seis&sus_thermal optimization
+  # load('Suspension_subcodes/sus_param.mat')
+  #
+  # Vert spring constants scaled from the aLIGO values
+  # according to the suspended mass by each stage
+  # The spring constant of the final stage
+  # Silicon Blade for max 1GPa stress has 43mm sag under 50kg load.
+  # This corresponds to 1.14e4 N/m. There are 4 blades.
+  # Silicon Blade for max 300MPa stress has 9.6mm sag under 50kg load.
+  # This corresponds to 1.14e4 N/m. There are 4 blades.
+  # Silicon Blade (40cmx8cm) for max 100MPa stress has 7.5mm sag under 50kg load.
+  # This corresponds to 6.5e4 N/m. There are 4 blades.
+  #
+  # Wire radii scaled from the aLIGO values
+  # according to the suspended mass by each stage
+  # For steel stages, we limit the stress up to 700MPa which was the number
+  # from the aLIGO case.
+  #
+  # Blade thicknesses scaled from the aLIGO values
+  # Used only for TE calculation
+  # Not reflected to the vertical spring constants
+  # Need to be recalculated -- Feb 25, 2018 (KA)
+  # Spring constant is proportional to (the blade thickness)^3.
+  Stage:
+    - Mass: 200.0  # kg; sus_param(5)
+      Length: 0.7824  # m; sus_param(1)
+      Temp: 123.0
+      Dilution: .nan
+      K: 2.6e5  # N/m; 6.5e4*4
+      WireRadius: .nan
+      Blade: 12e-3  # blade thickness
+      NWires: 4
+      WireMaterial: 'Silicon_123K'
+      BladeMaterial: 'Silicon_123K'
+    - Mass: 200.0  # kg; sus_param(6)
+      Length: 0.5592  # m; sus_param(2)
+      Temp: 123.0
+      Dilution: .nan
+      K: 2.63e4  # N/m; vertical spring constant
+      WireRadius: 0.668e-3
+      Blade: 7.21e-3
+      NWires: 4
+      WireMaterialUpper: 'C70Steel'
+      WireMaterialLower: 'C70Steel_123K'
+      BladeMaterial: 'MaragingSteel'
+    - Mass: 70.0  # kg; sus_param(7)
+      Length: 0.1500  # m; sus_param(3)
+      Temp: 295.0
+      Dilution: .nan
+      K: 1.82e4  # N/m; vertical spring constant
+      WireRadius: 0.724e-3
+      Blade: 7.7e-3
+      NWires: 4
+      WireMaterial: 'C70Steel'
+      BladeMaterial: 'MaragingSteel'
+    - Mass: 50.0  # kg; sus_param(8)
+      Length: 0.1500  # m; sus_param(4)
+      Temp: 295.0
+      Dilution: .nan
+      K: 1.14e5  # N/m; vertical spring constant
+      WireRadius: 1.08e-3
+      Blade: 13.9e-3
+      NWires: 2
+      WireMaterial: 'C70Steel'
+      BladeMaterial: 'MaragingSteel'
+  Silicon_123K:
+    # http://www.ioffe.ru/SVA/NSM/Semicond/Si/index.html
+    # all properties should be for T ~ 120 K
+    Rho: 2329.0       # Kg/m^3   density
+    C: 300.0          # J/kg/K   heat capacity
+    K: 700.0          # W/m/K    thermal conductivity
+    Alpha: 1e-10      # 1/K      thermal expansion coeff
+    # from Gysin, et. al. PRB (2004)  E(T) = E0 - B*T*exp(-T0/T)
+    # E0 = 167.5e9 Pa   T0 = 317 K   B = 15.8e6 Pa/K
+    dlnEdT: -2e-5     # (1/K)    dlnE/dT  T = 120K
+    Phi: 2e-9         # Nawrodt (2010)      loss angle  1/Q
+    Y: 155.8e9        # Pa       Youngs Modulus
+    # Investigation of mechanical losses of thin silicon flexures at low temperatures
+    # R Nawrodt et al 2013 Class. Quantum Grav. 30 115008
+    # ds*phi = 0.5e-12 -> ds=0.5e-12/2e-9
+    Dissdepth: 2.5e-4
+  Silica:
+    Rho: 2200.0       # Kg/m^3
+    C: 772.0          # J/Kg/K
+    K: 1.38           # W/m/kg
+    Alpha: 3.9e-7     # 1/K
+    dlnEdT: 1.52e-4   # (1/K), dlnE/dT
+    Phi: 4.1e-10      # from G Harry e-mail to NAR 27April06
+    Y: 72e9           # Pa; Youngs Modulus
+    Dissdepth: 1.5e-2 # from G Harry e-mail to NAR 27April06
+  C70Steel:
+    Rho: 7800.0
+    C: 486.0
+    K: 49.0
+    Alpha: 12e-6
+    dlnEdT: -2.5e-4
+    Phi: 2e-4
+    Y: 212e9  # measured by MB for one set of wires
+  C70Steel_123K:
+    Rho: 7800.0  # same as at 300K
+    C: 250.0  # guess
+    K: 15.0  # https://nptel.ac.in/courses/112101004/downloads/(6-3-2)%20NPTEL%20-%20Properties%20of%20Materials%20at%20Cryogenic%20Temperature.pdf
+    Alpha: 8e-6  # https://nptel.ac.in/courses/112101004/downloads/(6-3-2)%20NPTEL%20-%20Properties%20of%20Materials%20at%20Cryogenic%20Temperature.pdf
+    dlnEdT: -2.5e-4
+    Phi: 2e-4
+    Y: 212e9
+  MaragingSteel:
+    Rho: 7800.0
+    C: 460.0
+    K: 20.0
+    Alpha: 11e-6
+    dlnEdT: 0.0
+    Phi: 1.0e-4
+    Y: 187e9
+    # consistent with measured blade spring constants NAR
+
+Materials:
+  ## Amorphous Silicon / Silica coating
+  Coating:
+    # high index material: a-Si
+    # https://wiki.ligo.org/OPT/AmorphousSilicon
+    Yhighn: 60e9      # http://dx.doi.org/10.1063/1.344462
+    Sigmahighn: 0.22
+    CVhighn: 1.05e6   # volume-specific heat capacity (J/K/m^3); 465*2250 http://journals.aps.org/prl/pdf/10.1103/PhysRevLett.96.055902
+    Alphahighn: 1e-9  # zero crossing at 123 K
+    Betahighn: 1.4e-4 # dn/dT
+    ThermalDiffusivityhighn: 1.03 # thermal conductivity W/m/K; http://dx.doi.org/10.1103/PhysRevLett.96.055902
+    Phihighn: 1e-5    # just a guess (depends on prep)
+    Indexhighn: 3.5
+
+    # low index material: silica
+    # https://wiki.ligo.org/OPT/SilicaCoatingProp
+    Ylown: 72e9       # Young's modulus (Pa)
+    Sigmalown: 0.17   # Poisson's ratio
+    CVlown: 1.6412e6  # volume-specific heat capacity (J/K/m^3); Crooks et al, Fejer et al
+    Alphalown: 5.1e-7 # Fejer et al
+    Betalown: 8e-6    # dn/dT,  (ref. 14)
+    ThermalDiffusivitylown: 1.05 # thermal conductivity W/m/K; http://dx.doi.org/10.1109/ITHERM.2002.1012450
+    Philown: 1e-4     # ?
+
+    # calculated for 123 K and 2000 nm following 
+    # Ghosh, et al (1994):  http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=317500
+    Indexlown: 1.436  # calculated (RXA)
+
+  ## Substrate Material parameters
+  # Silicon @ 120K (http://www.ioffe.ru/SVA/NSM/Semicond/Si/index.html)
+  Substrate:
+    #  phi_sub = c2 * f^(MechLossExp)
+    c2: 3e-13            # Coeff of freq dep. term for bulk loss (Lam & Douglass, 1981)
+    MechanicalLossExponent: 1 # Exponent for freq dependence of silicon loss
+    Alphas: 5.2e-12      # Surface loss limit ???
+    MirrorY: 155.8e9     # N/m^2; Youngs modulus (ioffe) -- what about anisotropy??
+    MirrorSigma: 0.27    # kg/m^3; Poisson ratio (ioffe) -- what about anisotropy??
+    MassDensity: 2329    # kg/m^3; (ioffe)
+    MassAlpha: 1e-9      # 1/K; CTE = 0 @ 120 K
+    MassCM: 300          # J/kg/K; specific heat (ioffe @ 120K)
+    MassKappa: 700       # W/(m*K); thermal conductivity (ioffe @ 120)
+    RefractiveIndex: 3.5 # 3.38 * (1 + 4e-5 * T)   (ioffe)
+    dndT: 1e-4           # ~123K & 1900 nm : http://arxiv.org/abs/physics/0606168
+    Temp: 123            # mirror temperature [K]
+
+  MassRadius: 0.225 # m; 45 cm mCZ silicon
+  MassThickness: 0.55
+
+Laser:
+  Wavelength: 2000e-9 # m
+  Power: 151.5919     # W zz['x'][0][0]
+
+Optics:
+  Type: 'SignalRecycled'
+
+  # calculate arm cavity spot sizes
+  # L = ifo.Infrastructure.Length
+  # w1,w2,junk = SpotSizes(1 - L / ifo.Optics.Curvature.ITM,
+  #                        1 - L / ifo.Optics.Curvature.ETM,
+  #                        L, ifo.Laser.Wavelength)
+  # load quantum PSO
+  # qopt_mat = sorted(os.listdir('CryogenicLIGO/Sensitivity/GWINC/optRuns'))[-1]
+  # zz = loadmat('CryogenicLIGO/Sensitivity/GWINC/optRuns/' + qopt_mat)
+  ITM:
+    SubstrateAbsorption: 1e-3   # 1/m; 10 ppm/cm for MCZ Si
+    CoatingAbsorption: 1e-6     # absorption of ITM
+    Transmittance: 2e-3         # zz['x'][0][3]
+    #CoatingThicknessLown: 0.308
+    #CoatingThicknessCap: 0.5
+    #itm = loadmat('CryogenicLIGO/Sensitivity/coating/aSi/Data/ITM_layers_151221_2237.mat')
+    CoatLayerOpticalThickness: #itm['TNout']['L'][0][0].T
+      - 0.010547147008907
+      - 0.287871950886634
+      - 0.102859957426864
+      - 0.400169140711108
+      - 0.098761965585538
+      - 0.394635060435437
+      - 0.105461298430110
+      - 0.376121362983190
+      - 0.121814822178758
+      - 0.358839306265721
+      - 0.135707673300901
+      - 0.386738199718736
+      - 0.088142365969070
+  ETM:
+    Transmittance: 5e-6                # Transmittance of ETM
+    #CoatingThicknessLown: 0.27
+    #CoatingThicknessCap: 0.5
+    #etm = loadmat('CryogenicLIGO/Sensitivity/coating/aSi/Data/ETM_layers_151221_2150.mat')
+    CoatLayerOpticalThickness: #etm['TNout']['L'][0][0].T
+      - 0.010002413172599
+      - 0.271214331066003
+      - 0.164174846618198
+      - 0.335989914883352
+      - 0.161231951101195
+      - 0.335876828755542
+      - 0.161500120481736
+      - 0.336207246174627
+      - 0.163812752345812
+      - 0.333822310779772
+      - 0.160417119090227
+      - 0.335440166104688
+      - 0.166431402148518
+      - 0.333247215316394
+      - 0.163197340499259
+      - 0.334971108967147
+      - 0.158386886176904
+  PRM:
+    Transmittance: 0.049
+  SRM:
+    CavityLength: 55           # m; ITM to SRM distance
+    Transmittance: 45.8e-3     # zz['x'][0][4]
+    #ifo.Optics.SRM.Tunephase = 0.23;           % SRM tuning, 795 Hz narrowband
+    Tunephase: 0.0             # SRM tuning [radians]
+  PhotoDetectorEfficiency: 0.95 # photo-detector quantum efficiency
+  Loss: 10e-6                  # average per mirror power loss
+  # factor of 4 for 1064 -> 2000
+  BSLoss: 0.5e-3               # power loss near beamsplitter
+  coupling: 1.0                # mismatch btwn arms & SRC modes; used to calculate an effective r_srm
+  Curvature:
+    ITM: 1800                  # RoC of ITM
+    ETM: 2500                  # RoC of ETM
+  SubstrateAbsorption: 0.3e-4  # 1/m; 0.3 ppm/cm for Hereaus
+  pcrit: 10                    # W; tolerable heating power (factor 1 ATC)
+  Quadrature:
+    dc: 1.5832                 # homoDyne phase [radians] zz['x'][0][5]
+
+Squeezer:
+  # Define the squeezing you want:
+  #   None = ignore the squeezer settings
+  #   Freq Independent = nothing special (no filter cavities)
+  #   Freq Dependent = applies the specified filter cavities
+  #   Optimal = find the best squeeze angle, assuming no output filtering
+  #   OptimalOptimal = optimal squeeze angle, assuming optimal readout phase
+  Type: 'Freq Dependent'
+  AmplitudedB: 10                  # SQZ amplitude [dB]
+  InjectionLoss: 0.05              # power loss to sqz
+  SQZAngle: 0                      # SQZ phase [radians]
+
+  # Parameters for frequency dependent squeezing
+  FilterCavity:
+    fdetune: -25      # detuning [Hz] zz['x'][0][1]
+    L: 300            # cavity length [m]
+    Ti: 6.15e-4       # input mirror transmission [Power] zz['x'][0][2]
+    Te: 0e-6          # end mirror transmission
+    Lrt: 10e-6        # round-trip loss in the cavity
+    Rot: 0            # phase rotation after cavity
+
+  ## Variational Output Parameters
+  # Define the output filter cavity chain
+  #   None = ignore the output filter settings
+  #   Chain = apply filter cavity chain
+  #   Optimal = find the best readout phase
+  OutputFilter:
+    Type: 'None'
+    FilterCavity:
+      fdetune: -30   # detuning [Hz]
+      L: 4000        # cavity length
+      Ti: 10e-3      # input mirror transmission [Power]
+      Te: 0          # end mirror transmission
+      Lrt: 100e-6    # round-trip loss in the cavity
+      Rot: 0         # phase rotation after cavity
+

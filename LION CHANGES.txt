@@ -1,0 +1,21 @@
+Our code is based on pygwinc commit 4a0c13b3 and can be found at https://git.ligo.org/gwinc/pygwinc/-/commit/4a0c13b3e82c6b966bbe20b7bfc7e50f4197b5a8
+
+A simple python jupyter file pynotebook.ipynb is provided for running the software. 
+On a computer with python and jupyter installed run "python -m notebook" in the folder pygwinc-master to get started.
+Make sure to restart the kernel when changing files.
+
+The total sensitivity curve of LION is provided by the file LION.dat as a power spectral density (p), amplitude spectral density (a) and characteristic strain (c) where a=sqrt(p) and c=a*sqrt(freq).
+
+We have added a new detector LION in the ifo folder the detector has been added to the gwinc\ifo\__init__.py file.
+
+The file gwinc/ifo/LION/ifo.yaml is based on gwinc/ifo/CE2/ifo.yaml. Changes have been made in the sections:
+-Suspension/Stage regarding Mass, Length, Temp
+-Laser/Power
+-Optics/ITM/Transmittance
+-Squeezer/FilterCavity
+
+In the file gwinc/ifo/LION/__init__.py the Newtonian noise and ExcessGas noise have been removed.
+
+gwinc\noise\seismic.py the values in line 73 and 79 have been reduced by a factor 1000
+gwinc\const.py the factor g has been set to 1.625
+gwinc\plot.py line 46 changed the ylim = [1e-25, 1e-18]
